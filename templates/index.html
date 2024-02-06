@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="static/css/style.css">
+        <title>Document</title>
+    </head>
+    <body>
+        <header>
+            <div class="header">
+                <h1>This is an experimentation and there isn't AI yet but soon</h1>
+            </div>
+        </header>
+        <main>
+            <p class="errormsg">{{errormsg}}</p>
+            <div class="frame_form">
+                <div class="frame_container">
+                    <img src="static/frames/frame0.jpg" alt="Frame" id="frame">
+                    <div class="actual_params_container">
+                        <ul>
+                            <li>Nombre tour(s) : {{nb_turn}}</li>
+                            <li>Nombre fruit(s) : {{nb_fruits}}</li>
+                            <li>Score : {{score}}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="from_container">
+                    <form action="generate" method="POST">
+                        <div class="param">
+                            <input type="radio" name="ai_set" id="ai_set" disabled>
+                            <label for="ai_set">AI</label>
+                        </div>
+                        <div class="param">
+                            <input type="number" name="turn_nb" id="turn_nb" min="1" value="1">
+                            <label for="turn_nb">Nombre tour(s)</label>
+                            <p style="display:none" id="turns">{{nb_turn}}</p>
+                        </div>
+                        <div class="param">
+                            <input type="number" name="fruits_nb" id="fruits_nb" min="1" value="1">
+                            <label for="fruits_nb">Nombre fruit(s)</label>
+                            <p style="display:none" id="fruits">{{nb_fruits}}</p>
+                        </div>
+                        <div class="param">
+                            <input type="number" name="map_size" id="map_size" min="5" value="5">
+                            <label for="map_size">Taille carte</label>
+                            <p style="display:none" id="map">{{map_size}}</p>
+                        </div>
+                        <button>Génerer</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </body>
+    <script>
+        let i = 0;
+        let nb_turn = document.getElementById("turns").textContent;
+        console.log(nb_turn);
+
+        function myLoop(nb_turn) {
+            setTimeout(function() {
+                let filename = "static/frames/frame" + i + ".jpg";
+                document.getElementById("frame").src=filename;
+                i++;
+                if (i < nb_turn) {
+                    myLoop(nb_turn);
+                }
+            }, 300)
+        }
+        myLoop(nb_turn);
+    </script>
+</html>
