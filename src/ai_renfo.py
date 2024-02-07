@@ -1,4 +1,5 @@
 import random
+import math
 from pathlib import Path
 from PIL import Image, ImageDraw
 
@@ -48,6 +49,22 @@ class Ant:
             left_square = [self.position[0], self.position[1] - 1]
 
         return (top_square, right_square, bottom_square, left_square)
+    
+    def nearest_fruit(self):
+        dist = {}
+        distances = []
+        for fruit_coord in FRUITS_COORDS:
+            delt_x = (self.position[0] - fruit_coord[0])**2
+            delt_y = (self.position[1] - fruit_coord[1])**2
+            distance = math.sqrt(delt_x + delt_y)
+            dist[distance] = FRUITS_COORDS
+            distances.append(distance)
+
+        print(FRUITS_COORDS, "\n")
+        print(dist)
+        print(min(distances))
+
+        return dist[min(dist.values)]
 
     def move(self):
         """Move the ant weither with AI (not implemented yet) if it's set or not
@@ -57,10 +74,13 @@ class Ant:
         # if random_force = 0 -> best moves
         # for further implementation, we'll add more than just 1 and 0 in order to have different AI level
         old_position = self.position
+        around_squares = self.get_around_square()
+        nf = self.nearest_fruit()
         if self.random_force:
-            around_squares = self.get_around_square()
             new_square = random.choice(around_squares)
             self.position = new_square
+        if not self.random_force:
+            pass
             
         self.total_moves += 1
 

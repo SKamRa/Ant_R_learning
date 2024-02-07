@@ -30,7 +30,7 @@ def generate():
         if total_tiles < int(fruits_nb):
             redirect('/')
             return render_template('index.html', errormsg="Nombre de fruits ne peux pas être supérieur au nombre de cases!")
-        score = ai_renfo.main(turn_nb, fruits_nb, size_map)
+        score = src.ai_renfo.main(turn_nb, fruits_nb, size_map)
         return render_template('index.html', nb_turn=turn_nb, nb_fruits=fruits_nb, map_size=size_map, score=score)
 
     elif request.method == 'GET':
