@@ -50,21 +50,34 @@ class Ant:
 
         return (top_square, right_square, bottom_square, left_square)
     
-    def nearest_fruit(self):
+    def get_nearest_fruit(self, coord):
         dist = {}
-        distances = []
+        nearest_distance = 1000000
         for fruit_coord in FRUITS_COORDS:
-            delt_x = (self.position[0] - fruit_coord[0])**2
-            delt_y = (self.position[1] - fruit_coord[1])**2
-            distance = math.sqrt(delt_x + delt_y)
-            dist[distance] = FRUITS_COORDS
-            distances.append(distance)
+            delta_x = (coord[0] - fruit_coord[0])**2
+            delta_y = (coord[1] - fruit_coord[1])**2
+            distance = math.sqrt(delta_x + delta_y)
+            dist[distance] = fruit_coord
+            if distance < nearest_distance: nearest_distance = distance
+            
+        #print(f"\n\nNearest fruits {nearest_distance} : {dist[nearest_distance]}\n\n")
 
-        print(FRUITS_COORDS, "\n")
-        print(dist)
-        print(min(distances))
-
-        return dist[min(dist.values)]
+        return (nearest_distance, dist[nearest_distance])
+    
+    def get_best_move(self):
+        nearest_distance = 1000000
+        nfs = {}
+        around_squares = self.get_around_square()
+        
+        for square_cord in around_squares:
+            distance, coords = self.get_nearest_fruit(square_cord)
+            nfs[distance] = square_cord
+            if distance < nearest_distance: nearest_distance = distance
+            
+        new_square = nfs[nearest_distance]
+        
+        return new_square
+        
 
     def move(self):
         """Move the ant weither with AI (not implemented yet) if it's set or not
@@ -75,12 +88,13 @@ class Ant:
         # for further implementation, we'll add more than just 1 and 0 in order to have different AI level
         old_position = self.position
         around_squares = self.get_around_square()
-        nf = self.nearest_fruit()
         if self.random_force:
             new_square = random.choice(around_squares)
             self.position = new_square
+            
         if not self.random_force:
-            pass
+            new_square = self.get_best_move()
+            self.position = new_square
             
         self.total_moves += 1
 
@@ -241,8 +255,8 @@ class MyEnvironment:
 
         Return : None
         """
-        abspath = Path("static/frames").absolute()
-        self.img.save(f"{abspath}/frame{i}.jpg")
+        abspath = Path("Ant_R_learning/static/frames").absolute()
+        self.img.save(f"{abspath}\\frame{i}.jpg")
 
 
 def main(nb_turn, nb_fruits, map_size, random_force=True):
@@ -294,6 +308,5 @@ if __name__ == "__main__":
     NB_FRUITS = 5
     NB_TURN = 20
     MAP, FRUITS_COORDS = init_map(NB_FRUITS, MAP_SIZE)
-    print(MAP)
 
-    main(NB_TURN, NB_FRUITS, MAP_SIZE)
+    main(NB_TURN, NB_FRUITS, MAP_SIZE, random_force=False)
