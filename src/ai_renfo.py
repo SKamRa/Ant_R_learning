@@ -53,6 +53,8 @@ class Ant:
     def get_nearest_fruit(self, coord):
         dist = {}
         nearest_distance = 1000000
+        print(FRUITS_COORDS)
+        
         for fruit_coord in FRUITS_COORDS:
             delta_x = (coord[0] - fruit_coord[0])**2
             delta_y = (coord[1] - fruit_coord[1])**2
@@ -62,7 +64,10 @@ class Ant:
             
         #print(f"\n\nNearest fruits {nearest_distance} : {dist[nearest_distance]}\n\n")
 
-        return (nearest_distance, dist[nearest_distance])
+        if FRUITS_COORDS:
+            return (nearest_distance, dist[nearest_distance])
+
+        return (0, None)
     
     def get_best_move(self):
         nearest_distance = 1000000
@@ -70,11 +75,15 @@ class Ant:
         around_squares = self.get_around_square()
         
         for square_cord in around_squares:
-            distance, coords = self.get_nearest_fruit(square_cord)
+            distance, _ = self.get_nearest_fruit(square_cord)
             nfs[distance] = square_cord
-            if distance < nearest_distance: nearest_distance = distance
-            
-        new_square = nfs[nearest_distance]
+            #if distance < nearest_distance: nearest_distance = distance
+            if distance <= nearest_distance: nearest_distance = distance
+          
+        if FRUITS_COORDS:
+            new_square = nfs[nearest_distance]
+        else:
+            new_square = self.position
         
         return new_square
         
@@ -304,9 +313,9 @@ def init_map(nb_fruits, map_size):
     return (map, fruits_coord)
 
 if __name__ == "__main__":
-    MAP_SIZE = 20
+    MAP_SIZE = 15
     NB_FRUITS = 5
-    NB_TURN = 20
+    NB_TURN = 60
     MAP, FRUITS_COORDS = init_map(NB_FRUITS, MAP_SIZE)
 
     main(NB_TURN, NB_FRUITS, MAP_SIZE, random_force=False)
