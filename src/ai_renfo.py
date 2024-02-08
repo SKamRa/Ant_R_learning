@@ -1,6 +1,7 @@
 import random
 import math
-from pathlib import Path
+import shutil
+import os
 from PIL import Image, ImageDraw
 
 class Ant:
@@ -33,10 +34,9 @@ class Ant:
 
         Return <tuple> : Coordonate of the arounding squares
         """
-        # test_square = 1,1
         top_square = right_square = bottom_square = left_square = [self.position[0], self.position[1]]
 
-        if self.position[0] - 1 > 0 and MAP[self.position[0] - 1] != 1:
+        if self.position[0] - 1 >= 0 and MAP[self.position[0] - 1] != 1:
             top_square = [self.position[0] - 1, self.position[1]]
 
         if self.position[1] + 1 < self.map_size and MAP[self.position[1] + 1] != 1:
@@ -45,7 +45,7 @@ class Ant:
         if self.position[0] + 1 < self.map_size and MAP[self.position[0] + 1] != 1:
             bottom_square = [self.position[0] + 1, self.position[1]]
 
-        if self.position[1] - 1 > 0 and MAP[self.position[1] - 1] != 1:
+        if self.position[1] - 1 >= 0 and MAP[self.position[1] - 1] != 1:
             left_square = [self.position[0], self.position[1] - 1]
 
         return (top_square, right_square, bottom_square, left_square)
@@ -53,7 +53,6 @@ class Ant:
     def get_nearest_fruit(self, coord):
         dist = {}
         nearest_distance = 1000000
-        print(FRUITS_COORDS)
         
         for fruit_coord in FRUITS_COORDS:
             delta_x = (coord[0] - fruit_coord[0])**2
@@ -61,8 +60,6 @@ class Ant:
             distance = math.sqrt(delta_x + delta_y)
             dist[distance] = fruit_coord
             if distance < nearest_distance: nearest_distance = distance
-            
-        #print(f"\n\nNearest fruits {nearest_distance} : {dist[nearest_distance]}\n\n")
 
         if FRUITS_COORDS:
             return (nearest_distance, dist[nearest_distance])
@@ -96,8 +93,8 @@ class Ant:
         # if random_force = 0 -> best moves
         # for further implementation, we'll add more than just 1 and 0 in order to have different AI level
         old_position = self.position
-        around_squares = self.get_around_square()
         if self.random_force:
+            around_squares = self.get_around_square()
             new_square = random.choice(around_squares)
             self.position = new_square
             
@@ -160,6 +157,7 @@ class MyEnvironment:
 
         if (self.pos[0], self.pos[1]) in FRUITS_COORDS:
             FRUITS_COORDS.remove((self.pos[0], self.pos[1]))
+            self.nb_fruits -= 1
             self.ant.score += 1
         
         if self.ant.total_moves > self.map_size * 2:
@@ -254,8 +252,9 @@ class MyEnvironment:
         # draw the fruits
         self.draw_fruits()
 
-        self.save_image(self.frame_count)
-        self.frame_count += 1
+        if len(FRUITS_COORDS) >= 0:
+            self.save_image(self.frame_count)
+            self.frame_count += 1
 
     def save_image(self, i):
         """Save the frame with its frame number on the root of the project
@@ -264,8 +263,12 @@ class MyEnvironment:
 
         Return : None
         """
-        abspath = Path("Ant_R_learning/static/frames").absolute()
+        abspath = os.path.abspath("static/frames")
         self.img.save(f"{abspath}\\frame{i}.jpg")
+
+def clean_up_dir():
+    path = os.path.abspath("Ant_R_learning/static/frames")
+    #shutil.rmtree('/path/to/folder')
 
 
 def main(nb_turn, nb_fruits, map_size, random_force=True):
@@ -286,9 +289,11 @@ def main(nb_turn, nb_fruits, map_size, random_force=True):
     myenv = MyEnvironment(int(nb_fruits), int(map_size), random_force, CTX, IMG, DRAWWIDTH, DRAWHEIGHT, LINE_WIDTH)
 
     # start simulator
-    for turn in range(int(nb_turn)):
+    turn = 0
+    while turn != nb_turn and len(FRUITS_COORDS) != 0:
         myenv.move()
         myenv.render_image()
+        turn += 1
     
     return myenv.ant.score
 
